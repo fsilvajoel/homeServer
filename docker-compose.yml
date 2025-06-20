@@ -1,0 +1,126 @@
+version: "3.9"
+
+services:
+  nzbget:
+    image: lscr.io/linuxserver/nzbget:latest
+    container_name: nzbget
+    ports:
+      - "${PORT_NZBGET}:6789"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - USER=${NZBGET_USER}
+      - PASS=${NZBGET_PASS}
+    volumes:
+      - ${DATA_PATH}/nzbget:/config
+      - ${DATA_PATH}/downloads:/downloads
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    ports:
+      - "${PORT_RADARR}:7878"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ${DATA_PATH}/radarr:/config
+      - ${DATA_PATH}/movies:/movies
+      - ${DATA_PATH}/downloads:/downloads
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    ports:
+      - "${PORT_SONARR}:8989"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ${DATA_PATH}/sonarr:/config
+      - ${DATA_PATH}/tv:/tv
+      - ${DATA_PATH}/downloads:/downloads
+    restart: unless-stopped
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    ports:
+      - "${PORT_LIDARR}:8686"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ${DATA_PATH}/lidarr:/config
+      - ${DATA_PATH}/music:/music
+      - ${DATA_PATH}/downloads:/downloads
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    ports:
+      - "${PORT_BAZARR}:6767"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ${DATA_PATH}/bazarr:/config
+      - ${DATA_PATH}/tv:/tv
+      - ${DATA_PATH}/movies:/movies
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    ports:
+      - "${PORT_PROWLARR}:9696"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ${DATA_PATH}/prowlarr:/config
+    restart: unless-stopped
+
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    ports:
+      - "${PORT_JACKETT}:9117"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - AUTO_UPDATE=true
+    volumes:
+      - ${DATA_PATH}/jackett:/config
+      - ${DATA_PATH}/downloads:/downloads
+    restart: unless-stopped
+
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    ports:
+      - "${PORT_OVERSEERR}:5055"
+    environment:
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ${DATA_PATH}/overseerr:/app/config
+    restart: unless-stopped
+
+  calibre:
+    image: lscr.io/linuxserver/calibre:latest
+    container_name: calibre
+    ports:
+      - "${PORT_CALIBRE}:8080"
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ${DATA_PATH}/calibre:/config
+      - ${DATA_PATH}/books:/books
+    restart: unless-stopped
+
+volumes:
+  portainer_data:
