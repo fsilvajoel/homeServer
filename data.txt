@@ -1,0 +1,25 @@
+Jellyfin
+Prowlarr
+192.168.104:9696
+indexadores: origem dos filmes
+
+nextcloud:
+http://192.168.31.156/
+
+Configurações para melhorar:
+- cloudflare
+- servidor reverso
+- bloqueador de anuncios
+
+
+Sonarr/Lidarr
+Username: apolodog
+password: apolodog
+
+jackett:
+http://192.168.31.104:9117
+
+CasaOS:
+http://192.168.31.156:81/#/
+Portainer
+http://192.168.31.156:9000

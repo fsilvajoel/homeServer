@@ -7,13 +7,13 @@ services:
     ports:
       - "${PORT_NZBGET}:6789"
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=${PUID}
+      - PGID=${PGID}
       - USER=${NZBGET_USER}
       - PASS=${NZBGET_PASS}
     volumes:
       - ${DATA_PATH}/nzbget:/config
-      - ${DATA_PATH}/downloads:/downloads
+      - ${MEDIA_PATH}/downloads:/downloads
     restart: unless-stopped
 
   radarr:
@@ -22,12 +22,12 @@ services:
     ports:
       - "${PORT_RADARR}:7878"
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=${PUID}
+      - PGID=${PGID}
     volumes:
       - ${DATA_PATH}/radarr:/config
-      - ${DATA_PATH}/movies:/movies
-      - ${DATA_PATH}/downloads:/downloads
+      - ${MEDIA_PATH}/movies:/movies
+      - ${MEDIA_PATH}/downloads:/downloads
     restart: unless-stopped
 
   sonarr:
@@ -36,12 +36,12 @@ services:
     ports:
       - "${PORT_SONARR}:8989"
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=${PUID}
+      - PGID=${PGID}
     volumes:
       - ${DATA_PATH}/sonarr:/config
-      - ${DATA_PATH}/tv:/tv
-      - ${DATA_PATH}/downloads:/downloads
+      - ${MEDIA_PATH}/tv:/tv
+      - ${MEDIA_PATH}/downloads:/downloads
     restart: unless-stopped
 
   lidarr:
@@ -50,12 +50,12 @@ services:
     ports:
       - "${PORT_LIDARR}:8686"
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=${PUID}
+      - PGID=${PGID}
     volumes:
       - ${DATA_PATH}/lidarr:/config
-      - ${DATA_PATH}/music:/music
-      - ${DATA_PATH}/downloads:/downloads
+      - ${MEDIA_PATH}/music:/music
+      - ${MEDIA_PATH}/downloads:/downloads
     restart: unless-stopped
 
   bazarr:
@@ -64,12 +64,12 @@ services:
     ports:
       - "${PORT_BAZARR}:6767"
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=${PUID}
+      - PGID=${PGID}
     volumes:
       - ${DATA_PATH}/bazarr:/config
-      - ${DATA_PATH}/tv:/tv
-      - ${DATA_PATH}/movies:/movies
+      - ${MEDIA_PATH}/tv:/tv
+      - ${MEDIA_PATH}/movies:/movies
     restart: unless-stopped
 
   prowlarr:
@@ -78,8 +78,8 @@ services:
     ports:
       - "${PORT_PROWLARR}:9696"
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=${PUID}
+      - PGID=${PGID}
     volumes:
       - ${DATA_PATH}/prowlarr:/config
     restart: unless-stopped
@@ -90,12 +90,12 @@ services:
     ports:
       - "${PORT_JACKETT}:9117"
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=${PUID}
+      - PGID=${PGID}
       - AUTO_UPDATE=true
     volumes:
       - ${DATA_PATH}/jackett:/config
-      - ${DATA_PATH}/downloads:/downloads
+      - ${MEDIA_PATH}/downloads:/downloads
     restart: unless-stopped
 
 volumes:
