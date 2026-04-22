@@ -1,0 +1,547 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HomeServer</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #0f0f0f;
+        color: #e0e0e0;
+        font-family: "Segoe UI", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px;
+        gap: 12px;
+      }
+
+      .server-icon {
+        font-size: 48px;
+        opacity: 0.6;
+      }
+
+      h1 {
+        font-size: 1.2rem;
+        font-weight: 400;
+        color: #888;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.85rem;
+        color: #4caf50;
+      }
+
+      .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #4caf50;
+        box-shadow: 0 0 6px #4caf50;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+
+      /* VM List */
+      .section-title {
+        margin-top: 24px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: #555;
+        align-self: flex-start;
+        max-width: 480px;
+        width: 100%;
+      }
+
+      .vm-list {
+        width: 100%;
+        max-width: 480px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .vm-card {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        border-radius: 10px;
+        padding: 14px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        transition: border-color 0.2s;
+      }
+
+      .vm-card:hover {
+        border-color: #3a3a3a;
+      }
+
+      .vm-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .vm-type-badge {
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        padding: 2px 7px;
+        border-radius: 4px;
+        background: #2a2a2a;
+        color: #888;
+        flex-shrink: 0;
+      }
+
+      .vm-name {
+        font-size: 0.95rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .vm-id {
+        font-size: 0.75rem;
+        color: #555;
+      }
+
+      .vm-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.8rem;
+        flex-shrink: 0;
+      }
+
+      .vm-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      .vm-dot.running {
+        background: #4caf50;
+        box-shadow: 0 0 5px #4caf50;
+        animation: pulse 2s infinite;
+      }
+      .vm-dot.stopped {
+        background: #555;
+      }
+      .vm-dot.loading {
+        background: #ff9800;
+        box-shadow: 0 0 5px #ff9800;
+        animation: pulse 0.8s infinite;
+      }
+
+      .btn-vm {
+        background: transparent;
+        border: 1px solid #333;
+        color: #aaa;
+        padding: 6px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+
+      .btn-vm.start:hover {
+        border-color: #4caf50;
+        color: #4caf50;
+      }
+      .btn-vm.stop:hover {
+        border-color: #e53935;
+        color: #e53935;
+      }
+      .btn-vm:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      .vm-loading {
+        text-align: center;
+        color: #444;
+        font-size: 0.9rem;
+        padding: 20px;
+      }
+
+      /* Divider */
+      .divider {
+        width: 100%;
+        max-width: 480px;
+        border: none;
+        border-top: 1px solid #1e1e1e;
+        margin: 16px 0 4px;
+      }
+
+      /* Shutdown host button */
+      .btn-shutdown {
+        margin-top: 8px;
+        background: transparent;
+        border: 2px solid #e53935;
+        color: #e53935;
+        padding: 14px 40px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .btn-shutdown:hover {
+        background: #e53935;
+        color: #fff;
+        box-shadow: 0 0 20px rgba(229, 57, 53, 0.35);
+      }
+
+      .btn-shutdown:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      /* Modal */
+      .overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.75);
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }
+      .overlay.active {
+        display: flex;
+      }
+
+      .modal {
+        background: #1a1a1a;
+        border: 1px solid #333;
+        border-radius: 12px;
+        padding: 32px;
+        max-width: 360px;
+        width: 90%;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .modal h2 {
+        font-size: 1.05rem;
+        color: #fff;
+      }
+      .modal p {
+        font-size: 0.88rem;
+        color: #888;
+      }
+
+      .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 6px;
+      }
+
+      .btn-cancel {
+        background: transparent;
+        border: 1px solid #444;
+        color: #aaa;
+        padding: 10px 22px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.88rem;
+        transition: all 0.2s;
+      }
+      .btn-cancel:hover {
+        border-color: #888;
+        color: #fff;
+      }
+
+      .btn-confirm {
+        background: #e53935;
+        border: none;
+        color: #fff;
+        padding: 10px 22px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.88rem;
+        font-weight: 600;
+        transition: all 0.2s;
+      }
+      .btn-confirm:hover {
+        background: #c62828;
+      }
+
+      /* Toast */
+      .toast {
+        display: none;
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e1e1e;
+        border: 1px solid #333;
+        color: #e0e0e0;
+        padding: 11px 22px;
+        border-radius: 8px;
+        font-size: 0.88rem;
+        z-index: 20;
+        white-space: nowrap;
+      }
+      .toast.show {
+        display: block;
+        animation: fadeInOut 3s forwards;
+      }
+
+      @keyframes fadeInOut {
+        0% {
+          opacity: 0;
+          transform: translateX(-50%) translateY(8px);
+        }
+        15% {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+        }
+        80% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="server-icon">🖥️</div>
+    <h1>HomeServer</h1>
+    <div class="status" id="host-status">
+      <div class="status-dot"></div>
+      Online
+    </div>
+
+    <p class="section-title">Máquinas virtuais & containers</p>
+
+    <div class="vm-list" id="vm-list">
+      <div class="vm-loading">Carregando...</div>
+    </div>
+
+    <hr class="divider" />
+
+    <button class="btn-shutdown" onclick="openModal('host')">
+      ⏻ Desligar servidor
+    </button>
+
+    <!-- Modal -->
+    <div class="overlay" id="overlay">
+      <div class="modal">
+        <h2 id="modal-title">Confirmar ação</h2>
+        <p id="modal-desc">Tem certeza?</p>
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+          <button
+            class="btn-confirm"
+            id="modal-confirm-btn"
+            onclick="confirmAction()"
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+      // ⚠️ Troca pela sua chave do .env
+      const SECRET_KEY = "admin";
+
+      let pendingAction = null;
+
+      // --- API helpers ---
+      function apiGet(path) {
+        return fetch(`${path}?key=${SECRET_KEY}`).then((r) => r.json());
+      }
+
+      function apiPost(path) {
+        return fetch(`${path}?key=${SECRET_KEY}`, { method: "POST" }).then(
+          (r) => r.json(),
+        );
+      }
+
+      // --- Load VMs ---
+      function loadVMs() {
+        apiGet("/api/vms")
+          .then((vms) => renderVMs(vms))
+          .catch(() => {
+            document.getElementById("vm-list").innerHTML =
+              '<div class="vm-loading">Erro ao carregar VMs.</div>';
+          });
+      }
+
+      function renderVMs(vms) {
+        const list = document.getElementById("vm-list");
+        if (!vms || vms.length === 0) {
+          list.innerHTML =
+            '<div class="vm-loading">Nenhuma VM encontrada.</div>';
+          return;
+        }
+
+        list.innerHTML = vms
+          .map((vm) => {
+            const running = vm.status === "running";
+            const dotClass = running ? "running" : "stopped";
+            const statusLabel = running ? "Ligada" : "Desligada";
+            const btnClass = running ? "stop" : "start";
+            const btnLabel = running ? "⏹ Parar" : "▶ Iniciar";
+            const action = running ? "stop" : "start";
+
+            return `
+          <div class="vm-card" id="vm-card-${vm.vmid}">
+            <div class="vm-info">
+              <span class="vm-type-badge">${vm.type.toUpperCase()}</span>
+              <div>
+                <div class="vm-name">${vm.name}</div>
+                <div class="vm-id">ID ${vm.vmid}</div>
+              </div>
+            </div>
+            <div class="vm-status">
+              <div class="vm-dot ${dotClass}" id="dot-${vm.vmid}"></div>
+              <span id="status-label-${vm.vmid}">${statusLabel}</span>
+            </div>
+            <button
+              class="btn-vm ${btnClass}"
+              id="btn-${vm.vmid}"
+              onclick="openModal('vm', '${vm.vmid}', '${vm.type}', '${action}', '${vm.name}')">
+              ${btnLabel}
+            </button>
+          </div>
+        `;
+          })
+          .join("");
+      }
+
+      // --- Modal ---
+      function openModal(type, vmid, vmtype, action, name) {
+        if (type === "host") {
+          pendingAction = { type: "host" };
+          document.getElementById("modal-title").textContent =
+            "Desligar servidor?";
+          document.getElementById("modal-desc").textContent =
+            "Todos os serviços e VMs serão encerrados. O servidor ficará inacessível.";
+          document.getElementById("modal-confirm-btn").textContent =
+            "Sim, desligar";
+        } else {
+          pendingAction = { type: "vm", vmid, vmtype, action, name };
+          const actionLabel = action === "start" ? "iniciar" : "desligar";
+          document.getElementById("modal-title").textContent =
+            `${action === "start" ? "Iniciar" : "Desligar"} ${name}?`;
+          document.getElementById("modal-desc").textContent =
+            `Confirma a ação de ${actionLabel} a máquina "${name}"?`;
+          document.getElementById("modal-confirm-btn").textContent =
+            "Confirmar";
+        }
+        document.getElementById("overlay").classList.add("active");
+      }
+
+      function closeModal() {
+        document.getElementById("overlay").classList.remove("active");
+        pendingAction = null;
+      }
+
+      function confirmAction() {
+        closeModal();
+        if (!pendingAction) return;
+
+        if (pendingAction.type === "host") {
+          apiGet("/api/shutdown-host").then(() => {
+            showToast("⏻ Servidor desligando...");
+            const dot = document.querySelector(".status-dot");
+            dot.style.background = "#e53935";
+            dot.style.boxShadow = "0 0 6px #e53935";
+            dot.style.animation = "none";
+            document.querySelector("#host-status span") &&
+              (document.querySelector("#host-status").lastChild.textContent =
+                " Desligando...");
+            document.querySelector(".btn-shutdown").disabled = true;
+          });
+        } else {
+          const { vmid, vmtype, action, name } = pendingAction;
+          const btn = document.getElementById(`btn-${vmid}`);
+          const dot = document.getElementById(`dot-${vmid}`);
+          const label = document.getElementById(`status-label-${vmid}`);
+
+          btn.disabled = true;
+          dot.className = "vm-dot loading";
+          label.textContent =
+            action === "start" ? "Iniciando..." : "Parando...";
+
+          apiPost(`/api/vm/${vmid}/${vmtype}/${action}`)
+            .then(() => {
+              showToast(
+                `✓ ${name}: ${action === "start" ? "iniciando" : "parando"}...`,
+              );
+              // Recarrega status após 4s
+              setTimeout(loadVMs, 4000);
+            })
+            .catch(() => {
+              showToast(`⚠️ Erro ao executar ação em ${name}`);
+              loadVMs();
+            });
+        }
+      }
+
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.remove("show");
+        void t.offsetWidth;
+        t.classList.add("show");
+      }
+
+      // Fecha modal ao clicar fora
+      document
+        .getElementById("overlay")
+        .addEventListener("click", function (e) {
+          if (e.target === this) closeModal();
+        });
+
+      // Carrega VMs ao abrir e atualiza a cada 30s
+      loadVMs();
+      setInterval(loadVMs, 30000);
+    </script>
+  </body>
+</html>
